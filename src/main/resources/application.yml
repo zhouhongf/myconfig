@@ -1,0 +1,42 @@
+server:
+  port: 8761
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: cconfig-server
+  # 每次更新application.yml文件后，在相应的eureka客户端, 可使用 curl -X POST http://localhost:9005/actuator/refresh更新配置
+  profiles:
+    active: native
+  cloud:
+    config:
+      server:
+        prefix: /config     # 为 config-server增加一个路径标签，防止与eureka发生冲突
+        native:
+          search-locations: classpath:/configcenter
+  security:
+    user:
+      name: username
+      password: 123456
+
+
+eureka:
+  instance:
+    hostname: localhost
+    prefer-ip-address: true
+    health-check-url-path: /actuator/health
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+    serviceUrl:
+      defaultZone: http://${spring.security.user.name}:${spring.security.user.password}@${eureka.instance.hostname}:8761/eureka/
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: ALWAYS
